@@ -144,15 +144,15 @@ void spectreAnalysis(float* dB, int n, float beginFreq, float endFreq, float ste
     // проверка найденного максимума на похожесть сигнала
     float threshold = middB + rmsdB * 3.f;
     if((maxdB > threshold + rmsdB * 3.f) &&
-       (dB[maxIndex - 1] > threshold + rmsdB * 2.0f) &&
-       (dB[maxIndex - 2] > threshold + rmsdB * 1.5f) &&
-       (dB[maxIndex - 3] > threshold + rmsdB * 1.0f) &&
-       (dB[maxIndex - 4] > threshold + rmsdB * 0.5f) &&
+       (dB[maxIndex - 1] > threshold + rmsdB * 3.0f) &&
+       (dB[maxIndex - 2] > threshold + rmsdB * 2.5f) &&
+       (dB[maxIndex - 3] > threshold + rmsdB * 2.0f) &&
+       (dB[maxIndex - 4] > threshold + rmsdB * 1.0f) &&
        (dB[maxIndex - 5] > threshold) &&
-       (dB[maxIndex + 1] > threshold + rmsdB * 2.0f) &&
-       (dB[maxIndex + 2] > threshold + rmsdB * 1.5f) &&
-       (dB[maxIndex + 3] > threshold + rmsdB * 1.0f) &&
-       (dB[maxIndex + 4] > threshold + rmsdB * 0.5f) &&
+       (dB[maxIndex + 1] > threshold + rmsdB * 3.0f) &&
+       (dB[maxIndex + 2] > threshold + rmsdB * 2.5f) &&
+       (dB[maxIndex + 3] > threshold + rmsdB * 2.0f) &&
+       (dB[maxIndex + 4] > threshold + rmsdB * 1.0f) &&
        (dB[maxIndex + 5] > threshold))
     {
         printf("%s %s found signal, freq = %.3f MHz, snr = %.1f dB\n", date, time, (beginFreq + maxIndex * stepFreq) * 1e-6, maxdB - middB);
