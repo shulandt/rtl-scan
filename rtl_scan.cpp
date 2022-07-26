@@ -103,7 +103,6 @@ int _tmain(int argc, _TCHAR* argv[])
         free(dB);
         numStr++;
     }
-    getchar();
     free(strBuff);
     fclose(inFile);
     fclose(outFile);
