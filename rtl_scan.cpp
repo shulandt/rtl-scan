@@ -121,6 +121,8 @@ void spectreAnalysis(float* dB, int n, float beginFreq, float endFreq, float ste
     float middB = 0.f;
     for(int i = 0; i < n; i++)
     {
+        if((i >= (n / 2) - 10) && (i <= (n / 2) + 10))
+            continue;
         middB += dB[i];
         if(dB[i] > maxdB)
         {
