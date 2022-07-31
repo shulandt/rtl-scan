@@ -149,7 +149,7 @@ void spectreAnalysis(float* dB, int n, float beginFreq, float endFreq, float ste
        (dB[maxIndex - 1] > threshold + 8.f) &&
        (dB[maxIndex + 1] > threshold + 8.f))
     {
-        printf("%s %s found signal, freq = %.3f MHz, snr = %.1f dB\n", date, time, (beginFreq + maxIndex * stepFreq) * 1e-6, maxdB - middB);
+        printf("\r%s %s found signal, freq = %.3f MHz, snr = %.1f dB\n", date, time, (beginFreq + maxIndex * stepFreq) * 1e-6, maxdB - middB);
         fprintf(outFile,"%s,%s,%.3f,%.1f\n", date, time, (beginFreq + maxIndex * stepFreq) * 1e-6, maxdB - middB);
     }
 }
