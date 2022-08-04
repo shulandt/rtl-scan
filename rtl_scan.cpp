@@ -12,22 +12,22 @@
 //------------------------------------------------------------------------------
 #define MAX_LEN_BUFF                   1024 * 1024
 #define MAX_SIGNALS                    30
-#define FREQ_MIN_INTERVAL_DEFAULT      0.1   // MHz
-#define FREQ_MIN_BANDWIDTH_DEFAULT     0.003 // MHz
-#define MIN_BANDWIDTH_STRENGTH_DEFAULT 10    // dB
+float freqMinInterval  = 0.1f;   // MHz
+float freqMinBandwidth = 0.003f; // MHz
+float minStrength      = 10.f;   // dB
 //------------------------------------------------------------------------------
 void spectreAnalysis(float* dB, int n, float beginFreq, float endFreq, float stepFreq, char* date, char* time, FILE* outFile);
 //------------------------------------------------------------------------------
 float nextFloat(char** delimPtr)
 {
-    *delimPtr = strchr(*delimPtr, 0);
-    *delimPtr += 2;
-    return atof(*delimPtr);
+	*delimPtr = strchr(*delimPtr, 0);
+	*delimPtr += 2;
+	return atof(*delimPtr);
 }
 //------------------------------------------------------------------------------
 int _tmain(int argc, _TCHAR* argv[])
 {
-    char inFileName[255]  = "rtl-power.csv";
+	char inFileName[255]  = "rtl-power.csv";
 	char outFileName[255] = "found-signals.csv";
 
 	if(argc > 1)
@@ -37,6 +37,18 @@ int _tmain(int argc, _TCHAR* argv[])
 	if(argc > 2)
 	{
 		strcpy(outFileName, argv[2]);
+	}
+	if(argc > 3)
+	{
+		freqMinInterval = atof(argv[3]);
+	}
+	if(argc > 4)
+	{
+		freqMinBandwidth = atof(argv[4]);
+	}
+	if(argc > 5)
+	{
+		minStrength = atof(argv[5]);
 	}
 	FILE* inFile = fopen(inFileName, "rt");
 	if(inFile == NULL)
@@ -59,7 +71,7 @@ int _tmain(int argc, _TCHAR* argv[])
 			printf("access denied\n");
 			return -1;
 		}
-		fprintf(outFile, "date,time,freq,dB\n");
+		fprintf(outFile, "date,time,freq,band,dB\n");
 	}
 	else
 	{
@@ -115,8 +127,12 @@ int _tmain(int argc, _TCHAR* argv[])
 void spectreAnalysis(float* dB, int n, float beginFreq, float endFreq, float stepFreq, char* date, char* time, FILE* outFile)
 {
 	int maxArray[MAX_SIGNALS];
+	int bandArray[MAX_SIGNALS];
 	for(int i = 0; i < MAX_SIGNALS; i++)
+	{
 		maxArray[i] = -1;
+        bandArray[i] = 0;
+	}
 	// коррекция выборки после фильтра (убираем ненужный всплеск посередине)
 	dB[n / 2 - 1] = dB[n / 2] = dB[n / 2 + 1] = dB[n / 2 + 2];
 	// расчет среднего и минимального значения
@@ -149,25 +165,52 @@ void spectreAnalysis(float* dB, int n, float beginFreq, float endFreq, float ste
 		float maxdB = -100.f;
 		for(int i = 0; i < n; i++)
 		{
-			if((dB[i] > middB + 10.f) && (dB[i] > maxdB))
+			// проверка, что пик превышает средний уровень шума
+			if((dB[i] > middB + minStrength) && (dB[i] > maxdB))
 			{
 				int k = 0;
+				// проверка, что пик отстоит от ранее найденных сигналов не менее, чем на заданный интервал
 				for(; k < j; k++)
 				{
-					if(fabs(((i - maxArray[k]) * stepFreq) * 1e-6) < FREQ_MIN_INTERVAL_DEFAULT)
+					if(fabs(((i - maxArray[k]) * stepFreq) * 1e-6) < freqMinInterval)
 						 break;
 				}
 				if(k == j)
 				{
-					maxdB = dB[i];
-					maxArray[j] = i;
-                }
+					// расчет полосы обнаруженного сигнала
+					// вправо от пика
+					int m = i;
+					while(dB[m] > (middB + minStrength))
+					{
+						m++;
+						if(m == n)
+							break;
+					}
+					int rightIndex = m - 1;
+					// влево от пика
+					m = i;
+					while(dB[m] > (middB + minStrength))
+					{
+						m--;
+						if(m < 0)
+							break;
+					}
+					int leftIndex = m + 1;
+					// проверка, что рассчитанная полоса превышает минимально заданную
+					int band = rightIndex - leftIndex;
+					if(band * stepFreq * 1e-6 > freqMinBandwidth)
+					{
+						maxdB = dB[i];
+						maxArray[j] = i;
+						bandArray[j] = band;
+					}
+				}
 			}
 		}
 		if(maxArray[j] >= 0)
 		{
-			printf("\r%s %s found signal, freq = %.3f MHz, snr = %.1f dB\n", date, time, (beginFreq + maxArray[j] * stepFreq) * 1e-6, maxdB - middB);
-			fprintf(outFile,"%s,%s,%.3f,%.1f\n", date, time, (beginFreq + maxArray[j] * stepFreq) * 1e-6, maxdB - middB);
+			printf("\r%s %s found signal, freq = %.3f MHz, band = %.3f MHz, snr = %.1f dB\n", date, time, (beginFreq + maxArray[j] * stepFreq) * 1e-6, bandArray[j] * stepFreq * 1e-6, maxdB - middB);
+			fprintf(outFile,"%s,%s,%.3f,%.3f,%.1f\n", date, time, (beginFreq + maxArray[j] * stepFreq) * 1e-6, bandArray[j] * stepFreq * 1e-6, maxdB - middB);
 		}
 	}
 }
