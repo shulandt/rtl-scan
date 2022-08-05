@@ -2,20 +2,7 @@
 
 trap "echo stop; exit;" SIGINT SIGTERM
 
-# SDR device number
-DEVICE=0
-# Begin frequency, MHz
-BEGIN_FREQ=462.0
-# End frequency, MHz
-END_FREQ=463.8
-# Min frequency interval between signals, MHz
-INTERVAL_FREQ=0.1
-# Min bandwidth for signal, MHz
-MIN_BANDWIDTH=0.001
-# Min SNR for signal, dB
-MIN_SNR=10
-# Output file name
-OUT_FILE=freq_scan.csv
+source ./sdr_scan.conf
 
 STEP=`echo "($END_FREQ - $BEGIN_FREQ) * 50" | bc`
 echo scanning from $BEGIN_FREQ MHz to $END_FREQ MHz, step $STEP Hz, freq interval $INTERVAL_FREQ MHz, min bandwidth $MIN_BANDWIDTH MHz, min snr $MIN_SNR dB 
