@@ -1,7 +1,7 @@
 
 PREFIX ?= /usr
 DESTDIR ?=
-BINDIR ?= $(PREFIX)/bin
+BINDIR ?= $(PREFIX)/local/bin
 
 all: rtl-scan
 
@@ -12,3 +12,4 @@ clean:
 
 install: rtl-scan
 	@install -v -d "$(DESTDIR)$(BINDIR)" && install -s -m 0755 -v rtl-scan "$(DESTDIR)$(BINDIR)/rtl-scan"
+	cp sdr_scan.sh $(BINDIR)
