@@ -8,6 +8,11 @@ source $LOG_PATH/sdr_scan.conf
 
 while [ 1 == 1 ]
 do
+    if [ -e $LOG_PATH/restart ]
+    then
+	    rm -f $LOG_PATH/restart
+        source $LOG_PATH/sdr_scan.conf
+	fi	
     for (( RANGE = 1; RANGE <= RANGE_QUANT; RANGE++ ))
     do
         BEGIN_FREQ=BEGIN_FREQ_$(echo $RANGE)
