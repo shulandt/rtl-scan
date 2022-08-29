@@ -23,8 +23,8 @@ do
 
         STEP=`echo "($END_FREQ - $BEGIN_FREQ) * 50" | bc`
         echo -e -n "\rscanning from $BEGIN_FREQ MHz to $END_FREQ MHz, step $STEP Hz..."
-        sudo rtl_power -d $DEVICE -g 20 -i 3 -1 -w hamming -f ${BEGIN_FREQ}M:${END_FREQ}M:$STEP $LOG_PATH/rtl-power.csv > /dev/null 2>&1
-        sudo rtl-scan $LOG_PATH/rtl-power.csv $LOG_PATH/$OUT_FILE $INTERVAL_FREQ $MIN_BANDWIDTH $MIN_SNR
+        sudo rtl_power -d $DEVICE -g 20 -i 3 -1 -w hamming -f ${BEGIN_FREQ}M:${END_FREQ}M:$STEP /tmp/rtl-power.csv > /dev/null 2>&1
+        sudo rtl-scan /tmp/rtl-power.csv $LOG_PATH/$OUT_FILE $INTERVAL_FREQ $MIN_BANDWIDTH $MIN_SNR
     done
 done
 
